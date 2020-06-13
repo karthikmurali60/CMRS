@@ -1,6 +1,23 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:edge_alert/edge_alert.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+class GoogleMaps {
+
+  GoogleMaps._();
+  static Future<void> openMap(double latitude, double longitude) async {
+    String googleUrl = 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
+    if (await canLaunch(googleUrl)) {
+      await launch(googleUrl);
+    } else {
+      throw 'Could not open the map.';
+    }
+  }
+}
+
 
 class RecommendationScreen extends StatefulWidget {
   static const String id = 'recommendation_screen';
@@ -14,67 +31,100 @@ class RecommendationScreen extends StatefulWidget {
 class _RecommendationScreenState extends State<RecommendationScreen> {
 
   List<String> names = [];
-  List<String> docNames = [];
-  String location = "";
+  List<String> locations = [];
+  List<String> phones = [];
+  String n1 = "";
+  String l1 = "";
+  String p1 = "";
   String phone = "";
   bool showSpinner = false;
-  List<RaisedButton> buttonsList = new List<RaisedButton>();
+  List<Container> buttonsList = new List<Container>();
+  QuerySnapshot querySnapshotNew;
+  final String _collection = 'hospitals';
+  final _fireStore = Firestore.instance;
+  Position position;
+  GeoPoint myLocation = GeoPoint(56,-122);
+  GeoPoint minDistanceLocation ;
+
 
   void initialize() async {
-    names = widget.documentIDs.split(",");
-    print(names[0]);
+    n1 = widget.documentIDs.split(";")[0];
+    l1 = widget.documentIDs.split(";")[1];
+    p1 = widget.documentIDs.split(";")[2];
+    names = n1.split(",");
+    locations = l1.split(" ");
+    phones = p1.split(",");
+  }
+
+  void _launchCaller(int number) async{
+    var url = "tel:${number.toString()}";
+    if(await canLaunch(url)){
+      await launch(url);
+    }
+    else{
+      throw 'Could not place call';
+    }
+  }
+
+  getData() async {
+    return await _fireStore.collection(_collection).getDocuments();
+  }
+
+  getLocation(int i) async {
+    position = await Geolocator().getLastKnownPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    myLocation = GeoPoint(position.latitude, position.longitude);
+    EdgeAlert.show(context, title: 'Your location', description: '$position', gravity: EdgeAlert.BOTTOM);
+    minDistanceLocation = GeoPoint(double.parse(locations[i].split(",")[0]), double.parse(locations[i].split(",")[1]));
+    GoogleMaps.openMap(minDistanceLocation.latitude,minDistanceLocation.longitude);
+  }
+
+  call(int i) async {
+    _launchCaller(int.parse(phones[i]));
   }
 
   @override
   void initState() {
-    /*for (int i = 0; i < docIDs.length; i++) {
-      print(docIDs[i]);
-    }
-    for (int i = 0; i < docIDs.length; i++) {
-      final String uid = docIDs[i];
-      firestore.collection('hospitals').document('AHVtBT3FSKY7uYWRipBmsKHyFuj1')
-      // ignore: non_constant_identifier_names
-          .get().then((DocumentSnapshot) =>
-          names1 = DocumentSnapshot.data['name']);
-      print(names1);*/
     super.initState();
     initialize();
+    getData().then((val) {
+      setState(() {
+        querySnapshotNew = val;
+      });
+    });
   }
 
-  void Alert1() {
-    Alert(
-      type: AlertType.success
-    ).show();
-  }
-
-  List<Widget> _buildButtonsWithNames() {
+  List<Container> _buildButtonsWithNames() {
+    buttonsList.clear();
     for (int i = 0; i < names.length; i++) {
-      buttonsList
-          .add(new RaisedButton(onPressed: Alert1, child: Text(names[i])));
+      buttonsList.add(Container(child: Row(
+        children: <Widget>[
+          Text(
+            names[i],
+          ),
+          RaisedButton(
+            child: Text(
+              "Location",
+            ),
+            onPressed: (){
+              getLocation(i);
+            } ,
+          ),
+          RaisedButton(
+            child: Text(
+              "Call",
+            ),
+            onPressed: (){
+              call(i);
+            },
+          ),
+        ],
+      ),));
     }
     return buttonsList;
   }
 
   @override
-   /*Widget build(BuildContext context) {
-      return MaterialApp(
-        home: Scaffold(
-          appBar: AppBar(
-            title: Text("List of Hospitals"),
-          ),
-          body: Center(
-            child: Container(
-                child: RaisedButton(
-                  child: Text("Get Hospitals"),
-                  onPressed: () {
-                    getName();
-                  },
-                ),
-            ),
-          ),
-        ),
-      );
-    }*/
   Widget build(BuildContext context) {
     return Scaffold(body: Wrap(children: _buildButtonsWithNames()));
   }

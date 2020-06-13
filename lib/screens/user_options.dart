@@ -47,6 +47,8 @@ class _UserOptionsState extends State<UserOptions>
   String names1;
   List<String> namesString = [];
   String namesConcat = "";
+  String locationsConcat = "";
+  String phonesConcat = "";
   final auth = FirebaseAuth.instance;
   final firestore = Firestore.instance;
   final String _collection = 'hospitals';
@@ -226,7 +228,7 @@ class _UserOptionsState extends State<UserOptions>
       docIDs = docIDs + "," + docID1[i];
     }
 
-    print(docIDs);
+    //print(docIDs);
 
 
     /*for(int i=0;i<docID1.length;i++){
@@ -243,6 +245,8 @@ class _UserOptionsState extends State<UserOptions>
 
     List<String> allDocs = [];
     List<String> requiredNames = [];
+    List<String> requireLocations = [];
+    List<String> requiredPhone = [];
       for (int i = 0; i < querySnapshotNew.documents.length; i++) {
         allDocs.add(querySnapshotNew.documents[i].documentID);
       }
@@ -251,6 +255,8 @@ class _UserOptionsState extends State<UserOptions>
         for (int j = 0; j < allDocs.length; j++) {
           if (docID1[i] == allDocs[j]) {
             requiredNames.add(querySnapshotNew.documents[j].data['name']);
+            requiredPhone.add(querySnapshotNew.documents[j].data['phone number']);
+            requireLocations.add(querySnapshotNew.documents[j].data['location']);
           }
         }
       }
@@ -258,16 +264,30 @@ class _UserOptionsState extends State<UserOptions>
       for (int i = 1; i < requiredNames.length; i++) {
         namesConcat = namesConcat + "," + requiredNames[i].trim();
       }
-      print(namesConcat);
+      //print(namesConcat);
 
-      requiredNames = namesConcat.split(",");
-      //print(requiredNames[0]);
+      phonesConcat =requiredPhone[0].trim();
+      for (int i = 1; i < requiredNames.length; i++) {
+        phonesConcat = phonesConcat + "," + requiredPhone[i].trim();
+      }
+      //print(phonesConcat);
 
-    Navigator.push(
+      locationsConcat = requireLocations[0].trim();
+      for(int i = 1;i < requireLocations.length;i++) {
+        locationsConcat = locationsConcat + " " + requireLocations[i].trim();
+      }
+      //print(locationsConcat);
+
+      String finalConcat = namesConcat+";"+locationsConcat+";"+phonesConcat;
+      //rint(finalConcat);
+
+      Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => RecommendationScreen(documentIDs: namesConcat,),
+          builder: (context) => RecommendationScreen(documentIDs: finalConcat,),
         ));
+
+
   }
 
 
