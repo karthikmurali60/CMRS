@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "599461950806",
+    "firebase_url": "https://cmrs-4ffc2.firebaseio.com",
+    "project_id": "cmrs-4ffc2",
+    "storage_bucket": "cmrs-4ffc2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:599461950806:android:1e018afd26e87f68efd2f7",
+        "android_client_info": {
+          "package_name": "co.kmhp.flash_chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "599461950806-rghioh75asl548dcmad59f2083fv45rt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB72R_lDLLNttIjpwuKpJ6UAhInWssC5ss"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "599461950806-rghioh75asl548dcmad59f2083fv45rt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
