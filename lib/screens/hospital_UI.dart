@@ -36,6 +36,7 @@ class _HospitalUIState extends State<HospitalUI> {
   void initialise2() async {
     final FirebaseUser user = await auth.currentUser();
     final String uid = user.uid;
+    print(uid);
     firestore.collection('hospitals').document(uid)
     // ignore: non_constant_identifier_names
         .get().then((DocumentSnapshot) =>

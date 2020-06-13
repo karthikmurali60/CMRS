@@ -1,3 +1,4 @@
+
 import 'package:flash_chat/screens/inputpage.dart';
 import 'package:flash_chat/screens/login_screen.dart';
 import 'package:flash_chat/screens/recommendation.dart';
@@ -39,8 +40,17 @@ class _UserOptionsState extends State<UserOptions>
   Position position;
   GeoPoint myLocation = GeoPoint(56,-122);
   QuerySnapshot querySnapshot;
+  QuerySnapshot querySnapshotNew;
   List<String> locations = [];
   GeoPoint minDistanceLocation ;
+  String name ="";
+  String names1;
+  List<String> namesString = [];
+  String namesConcat = "";
+  final auth = FirebaseAuth.instance;
+  final firestore = Firestore.instance;
+  final String _collection = 'hospitals';
+    final _fireStore = Firestore.instance;
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
@@ -52,13 +62,21 @@ class _UserOptionsState extends State<UserOptions>
     return await Firestore.instance.collection('hospitals').where('beds', isGreaterThan: n).getDocuments();
   }
 
-
+  getData() async {
+    return await _fireStore.collection(_collection).getDocuments();
+  }
   @override
   void initState() {
     super.initState();
     getHospitalLocations(0).then((results) {
       setState(() {
         querySnapshot = results;
+      });
+    });
+
+    getData().then((val) {
+      setState(() {
+        querySnapshotNew = val;
       });
     });
   }
@@ -102,73 +120,32 @@ class _UserOptionsState extends State<UserOptions>
     }
   }
 
-  String descr = "";
-  void getNameOfNearestHospital() async {
-      //List<String> minDistance = [];
-      List<String> docID = [];
-      List<String> docID1 = [];
-      List<double> myDist = []; // Stores all distances
-      double myDist1;
-      //int l = 0;
-      position = await Geolocator().getLastKnownPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      myLocation = GeoPoint(position.latitude, position.longitude);
-      //print(position);
-      EdgeAlert.show(context, title: 'Your location', description: '$position', gravity: EdgeAlert.BOTTOM);
-      for (int i = 0; i < querySnapshot.documents.length; i++) {
-        locations.add(querySnapshot.documents[i].data['location']);
-        docID.add(querySnapshot.documents[i].documentID);
-      }
-      print(locations.length);
-      //double min = await Geolocator().distanceBetween(myLocation.latitude, myLocation.longitude, double.parse(locations[0].split(",")[0]), double.parse(locations[0].split(",")[1]));
-      int minIndex = 0;
-      for (int i = 0; i < locations.length; i++) {
-        final double endLatitude = double.parse(locations[i].split(",")[0]);
-        final double endLongitude = double.parse(locations[i].split(",")[1]);
-        myDist1 = await Geolocator().distanceBetween(
-            myLocation.latitude, myLocation.longitude, endLatitude,
-            endLongitude);
-        myDist.add(myDist1);
-      }
-      for(int i = 1 ; i < myDist.length; i++ ){
-        if(myDist[i]<myDist[minIndex])
-          minIndex = i;
-      }
-      //List<double> equalDistanceList = [];
-      int e = 0;
-      for(int i=0;i<myDist.length;i++){
-        if(myDist[i] == myDist[minIndex]){
-          //equalDistanceList[e] = myDist[i];
-          docID1.add(docID[i]);
-          //docID1[e] = docID[i];
-          //  e++;
-        }
-      }
-      //print(equalDistanceList.length);
-      String docIDs = docID1[0];
-      for(int i = 1; i < docID1.length; i++){
-        docIDs = docIDs+","+docID1[i];
-      }
+  // ignore: missing_return
+  /*Future<void> splitName() async {
 
-      print(docIDs);
-      Navigator.push(
+    String s = await getNameOfNearestHospital();
+    print(s);
+
+    /*Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => RecommendationScreen(documentIDs: docIDs,),
+            builder: (context) => RecommendationScreen(documentIDs: namesConcat,),
           ));
+       */
 
+    //if(myDistances<min){
+    //min = myDistances;
+    //minIndex = i;
+    //minDistance[l] = locations[i];
+    //l++;
 
-        //if(myDistances<min){
-          //min = myDistances;
-          //minIndex = i;
-          //minDistance[l] = locations[i];
-          //l++;
-      /*minDistanceLocation = GeoPoint(double.parse(locations[minIndex].split(",")[0]), double.parse(locations[minIndex].split(",")[1]));
+    /*minDistanceLocation = GeoPoint(double.parse(locations[minIndex].split(",")[0]), double.parse(locations[minIndex].split(",")[1]));
       String minDistance = minDistanceLocation.latitude.toString()+","+minDistanceLocation.longitude.toString();
       QuerySnapshot name = await Firestore.instance.collection('hospitals').where('location', isEqualTo: minDistance).getDocuments();
       descr = name.documents[0].data['name'];
       //return (name.documents[0].data['name']);*/
-      /*Alert(
+
+    /*Alert(
         context: context,
         type: AlertType.success,
         title: equalDistanceList.length.toString(),
@@ -188,13 +165,112 @@ class _UserOptionsState extends State<UserOptions>
         ],
       ).show();*/
 
+  }*/
+
+    getNames(String s) async {
+    var hospitalName;
+    var arr = s.split(",");
+    firestore.collection('hospitals').document(arr[0])
+    // ignore: non_constant_identifier_names
+        .get().then((DocumentSnapshot) =>
+    hospitalName = DocumentSnapshot.data['name']);
+    print(hospitalName);
+    }
+
+
+    void getNameOfNearestHospital() async {
+    List<String> docID = [];
+    List<String> docID1 = [];
+    List<double> myDist = []; // Stores all distances
+    double myDist1;
+
+    position = await Geolocator().getLastKnownPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    myLocation = GeoPoint(position.latitude, position.longitude);
+
+    EdgeAlert.show(context, title: 'Your location',
+        description: '$position',
+        gravity: EdgeAlert.BOTTOM);
+    for (int i = 0; i < querySnapshot.documents.length; i++) {
+      locations.add(querySnapshot.documents[i].data['location']);
+      docID.add(querySnapshot.documents[i].documentID);
+    }
+    //print(locations.length);
+    //double min = await Geolocator().distanceBetween(myLocation.latitude, myLocation.longitude, double.parse(locations[0].split(",")[0]), double.parse(locations[0].split(",")[1]));
+
+    int minIndex = 0;
+    for (int i = 0; i < locations.length; i++) {
+      final double endLatitude = double.parse(locations[i].split(",")[0]);
+      final double endLongitude = double.parse(locations[i].split(",")[1]);
+      myDist1 = await Geolocator().distanceBetween(
+          myLocation.latitude, myLocation.longitude, endLatitude,
+          endLongitude);
+      myDist.add(myDist1);
+    }
+    for (int i = 1; i < myDist.length; i++) {
+      if (myDist[i] < myDist[minIndex])
+        minIndex = i;
+    }
+    //List<double> equalDistanceList = [];
+    for (int i = 0; i < myDist.length; i++) {
+      if (myDist[i] == myDist[minIndex]) {
+        //equalDistanceList[e] = myDist[i];
+        docID1.add(docID[i]);
+        //docID1[e] = docID[i];
+        //  e++;
+      }
+    }
+    //print(equalDistanceList.length);
+    String docIDs = docID1[0];
+    for (int i = 1; i < docID1.length; i++) {
+      docIDs = docIDs + "," + docID1[i];
+    }
+
+    print(docIDs);
+
+
+    /*for(int i=0;i<docID1.length;i++){
+        //final FirebaseUser user = await auth.currentUser();
+        print(docID1[i].toString());
+        final firestore = Firestore.instance;
+        firestore.collection('hospitals').document(docID1[i].toString())
+        // ignore: non_constant_identifier_names
+            .get().then((DocumentSnapshot) =>
+        name = DocumentSnapshot.data['name']);
+        print(name);
+      }
+       */
+
+    List<String> allDocs = [];
+    List<String> requiredNames = [];
+      for (int i = 0; i < querySnapshotNew.documents.length; i++) {
+        allDocs.add(querySnapshotNew.documents[i].documentID);
+      }
+      //print(allDocs.length);
+      for (int i = 0; i < docID1.length; i++) {
+        for (int j = 0; j < allDocs.length; j++) {
+          if (docID1[i] == allDocs[j]) {
+            requiredNames.add(querySnapshotNew.documents[j].data['name']);
+          }
+        }
+      }
+      namesConcat = requiredNames[0].trim();
+      for (int i = 1; i < requiredNames.length; i++) {
+        namesConcat = namesConcat + "," + requiredNames[i].trim();
+      }
+      print(namesConcat);
+
+      requiredNames = namesConcat.split(",");
+      //print(requiredNames[0]);
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RecommendationScreen(documentIDs: namesConcat,),
+        ));
   }
 
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
+
 
     @override
   Widget build(BuildContext context) {
