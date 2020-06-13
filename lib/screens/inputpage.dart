@@ -208,15 +208,27 @@ class _InputPageState extends State<InputPage> {
             BottomButton(
               buttonTitle: 'Request CMRS',
               onTap: () {
-                //if(gender != null)
-                _firestore.collection('user_details').document(patient).setData({
-                  'age': age,
-                  'gender': gender,
-                  'name': patient,
-                  'location': myLocation
-                });
-                _firestore.collection('user_details');
-                Navigator.pushNamed(context, Prioritisation.id);
+                if(gender == null){
+                  EdgeAlert.show(context, title: "Enter all the details",description: 'Select Gender',gravity: EdgeAlert.BOTTOM);
+                }
+                else if(patient == null){
+                  EdgeAlert.show(context, title: "Enter all the details",description: 'Enter patient name',gravity: EdgeAlert.BOTTOM);
+                }
+                else if(myLocation == null){
+                  EdgeAlert.show(context, title: "Enter all the details",description: 'Select Current Location',gravity: EdgeAlert.BOTTOM);
+                }
+                else {
+                  _firestore.collection('user_details')
+                      .document(patient)
+                      .setData({
+                    'age': age,
+                    'gender': gender,
+                    'name': patient,
+                    'location': myLocation
+                  });
+                  _firestore.collection('user_details');
+                  Navigator.pushNamed(context, Prioritisation.id);
+                }
               },
             ),
           ],

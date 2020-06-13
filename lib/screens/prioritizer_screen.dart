@@ -70,15 +70,15 @@ class _PrioritisationState extends State<Prioritisation> {
 
 
   QuerySnapshot querySnapshot;
-  List<String> locations = [];
-  List<double> distances = [];
-  List<String> phoneNumbers = [];
-  GeoPoint minDistanceLocation ;
+
   int phoneNumber ;
   String descr = "";
 
   void getLocationOfNearestHospital(int n) async {
     try {
+      List<String> locations = [];
+      List<String> phoneNumbers = [];
+      GeoPoint minDistanceLocation ;
       position = await Geolocator().getLastKnownPosition(
           desiredAccuracy: LocationAccuracy.high);
       myLocation = GeoPoint(position.latitude, position.longitude);
@@ -125,6 +125,8 @@ class _PrioritisationState extends State<Prioritisation> {
   }
 
   void getNameOfNearestHospital() async {
+    List<String> locations = [];
+    GeoPoint minDistanceLocation ;
     position = await Geolocator().getLastKnownPosition(
         desiredAccuracy: LocationAccuracy.high);
     myLocation = GeoPoint(position.latitude, position.longitude);

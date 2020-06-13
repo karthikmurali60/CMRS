@@ -41,7 +41,7 @@ class _UserOptionsState extends State<UserOptions>
   GeoPoint myLocation = GeoPoint(56,-122);
   QuerySnapshot querySnapshot;
   QuerySnapshot querySnapshotNew;
-  List<String> locations = [];
+
   GeoPoint minDistanceLocation ;
   String name ="";
   String names1;
@@ -85,6 +85,7 @@ class _UserOptionsState extends State<UserOptions>
 
   void getLocationOfNearestHospital() async {
     try {
+      List<String> locations = [];
       position = await Geolocator().getLastKnownPosition(
           desiredAccuracy: LocationAccuracy.high);
       myLocation = GeoPoint(position.latitude, position.longitude);
@@ -169,22 +170,14 @@ class _UserOptionsState extends State<UserOptions>
 
   }*/
 
-    getNames(String s) async {
-    var hospitalName;
-    var arr = s.split(",");
-    firestore.collection('hospitals').document(arr[0])
-    // ignore: non_constant_identifier_names
-        .get().then((DocumentSnapshot) =>
-    hospitalName = DocumentSnapshot.data['name']);
-    print(hospitalName);
-    }
-
 
     void getNameOfNearestHospital() async {
     List<String> docID = [];
-    List<String> docID1 = [];
+    docID.clear();
     List<double> myDist = []; // Stores all distances
+    myDist.clear();
     double myDist1;
+    List<String> locations = [];
 
     position = await Geolocator().getLastKnownPosition(
         desiredAccuracy: LocationAccuracy.high);
@@ -197,9 +190,7 @@ class _UserOptionsState extends State<UserOptions>
       locations.add(querySnapshot.documents[i].data['location']);
       docID.add(querySnapshot.documents[i].documentID);
     }
-    //print(locations.length);
-    //double min = await Geolocator().distanceBetween(myLocation.latitude, myLocation.longitude, double.parse(locations[0].split(",")[0]), double.parse(locations[0].split(",")[1]));
-
+    print("location length ${locations.length}");
     int minIndex = 0;
     for (int i = 0; i < locations.length; i++) {
       final double endLatitude = double.parse(locations[i].split(",")[0]);
@@ -209,39 +200,26 @@ class _UserOptionsState extends State<UserOptions>
           endLongitude);
       myDist.add(myDist1);
     }
+
     for (int i = 1; i < myDist.length; i++) {
       if (myDist[i] < myDist[minIndex])
         minIndex = i;
     }
-    //List<double> equalDistanceList = [];
+    print("my dust ${myDist.length}");
+    print("docId is ${docID.length}");
+    List<String> docID1 = [];
     for (int i = 0; i < myDist.length; i++) {
       if (myDist[i] == myDist[minIndex]) {
-        //equalDistanceList[e] = myDist[i];
         docID1.add(docID[i]);
-        //docID1[e] = docID[i];
-        //  e++;
       }
     }
-    //print(equalDistanceList.length);
+    docID.clear();
+    myDist = [];
+    print("my dist ${myDist.length}");
     String docIDs = docID1[0];
     for (int i = 1; i < docID1.length; i++) {
       docIDs = docIDs + "," + docID1[i];
     }
-
-    //print(docIDs);
-
-
-    /*for(int i=0;i<docID1.length;i++){
-        //final FirebaseUser user = await auth.currentUser();
-        print(docID1[i].toString());
-        final firestore = Firestore.instance;
-        firestore.collection('hospitals').document(docID1[i].toString())
-        // ignore: non_constant_identifier_names
-            .get().then((DocumentSnapshot) =>
-        name = DocumentSnapshot.data['name']);
-        print(name);
-      }
-       */
 
     List<String> allDocs = [];
     List<String> requiredNames = [];
@@ -264,30 +242,22 @@ class _UserOptionsState extends State<UserOptions>
       for (int i = 1; i < requiredNames.length; i++) {
         namesConcat = namesConcat + "," + requiredNames[i].trim();
       }
-      //print(namesConcat);
-
       phonesConcat =requiredPhone[0].trim();
       for (int i = 1; i < requiredNames.length; i++) {
         phonesConcat = phonesConcat + "," + requiredPhone[i].trim();
       }
-      //print(phonesConcat);
 
       locationsConcat = requireLocations[0].trim();
       for(int i = 1;i < requireLocations.length;i++) {
         locationsConcat = locationsConcat + " " + requireLocations[i].trim();
       }
-      //print(locationsConcat);
-
       String finalConcat = namesConcat+";"+locationsConcat+";"+phonesConcat;
-      //rint(finalConcat);
 
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => RecommendationScreen(documentIDs: finalConcat,),
         ));
-
-
   }
 
 
