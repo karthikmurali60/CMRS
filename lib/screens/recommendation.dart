@@ -97,36 +97,76 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
   List<Container> _buildButtonsWithNames() {
     buttonsList.clear();
     for (int i = 0; i < names.length; i++) {
-      buttonsList.add(Container(child: Row(
-        children: <Widget>[
-          Text(
-            names[i],
-          ),
-          RaisedButton(
-            child: Text(
-              "Location",
+      buttonsList.add(
+        Container(
+            margin: EdgeInsets.all(15.0),
+            decoration: BoxDecoration(
+
+              color: Colors.teal,
+              borderRadius: BorderRadius.circular(10.0),
             ),
-            onPressed: (){
-              getLocation(i);
-            } ,
-          ),
-          RaisedButton(
-            child: Text(
-              "Call",
-            ),
-            onPressed: (){
-              call(i);
-            },
-          ),
-        ],
-      ),));
+            child: Column(
+              children: <Widget>[
+                Container(
+
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    names[i],
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+
+                    RaisedButton(
+                      child: Text(
+                        "Location",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      onPressed: (){
+                        getLocation(i);
+                      } ,
+                    ),
+                    RaisedButton(
+                      child: Text(
+                        "Call",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      onPressed: (){
+                        call(i);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            )),
+      );
+
     }
     return buttonsList;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Wrap(children: _buildButtonsWithNames()));
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.teal,
+        title: Text('Nearest Hospitals'),
+      ),
+      body: Wrap(children: _buildButtonsWithNames()),
+      backgroundColor: Colors.white,
+    );
   }
 }
-

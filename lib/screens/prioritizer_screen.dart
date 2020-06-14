@@ -1,3 +1,4 @@
+import 'package:flash_chat/screens/recommendation.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flash_chat/story_brain.dart';
@@ -36,6 +37,8 @@ class _PrioritisationState extends State<Prioritisation> {
 
   Position position;
   GeoPoint myLocation = GeoPoint(56,-122);
+  final String _collection = 'hospitals';
+  final _fireStore = Firestore.instance;
 
   getHospitalLocations(int n) async {
     return await Firestore.instance.collection('hospitals').where('beds', isGreaterThan: n).getDocuments();
@@ -58,6 +61,10 @@ class _PrioritisationState extends State<Prioritisation> {
     return storyBrain.alert();
   }
 
+  getData() async {
+    return await _fireStore.collection(_collection).getDocuments();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -66,10 +73,17 @@ class _PrioritisationState extends State<Prioritisation> {
         querySnapshot = results;
       });
     });
+
+    getData().then((val) {
+      setState(() {
+        querySnapshotNew = val;
+      });
+    });
   }
 
 
   QuerySnapshot querySnapshot;
+  QuerySnapshot querySnapshotNew;
 
   int phoneNumber ;
   String descr = "";
@@ -124,7 +138,7 @@ class _PrioritisationState extends State<Prioritisation> {
     }
   }
 
-  void getNameOfNearestHospital() async {
+  /*void getNameOfNearestHospital() async {
     List<String> locations = [];
     GeoPoint minDistanceLocation ;
     position = await Geolocator().getLastKnownPosition(
@@ -192,6 +206,100 @@ class _PrioritisationState extends State<Prioritisation> {
         )
       ],
     ).show();
+  }
+   */
+
+  void getNameOfNearestHospital() async {
+    List<String> docID = [];
+    docID.clear();
+    List<double> myDist = []; // Stores all distances
+    myDist.clear();
+    double myDist1;
+    List<String> locations = [];
+    String namesConcat;
+    String locationsConcat;
+    String phonesConcat;
+
+
+    position = await Geolocator().getLastKnownPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    myLocation = GeoPoint(position.latitude, position.longitude);
+
+    EdgeAlert.show(context, title: 'Your location',
+        description: '$position',
+        gravity: EdgeAlert.BOTTOM);
+    for (int i = 0; i < querySnapshot.documents.length; i++) {
+      locations.add(querySnapshot.documents[i].data['location']);
+      docID.add(querySnapshot.documents[i].documentID);
+    }
+    //print("location length ${locations.length}");
+    int minIndex = 0;
+    for (int i = 0; i < locations.length; i++) {
+      final double endLatitude = double.parse(locations[i].split(",")[0]);
+      final double endLongitude = double.parse(locations[i].split(",")[1]);
+      myDist1 = await Geolocator().distanceBetween(
+          myLocation.latitude, myLocation.longitude, endLatitude,
+          endLongitude);
+      myDist.add(myDist1);
+    }
+
+    for (int i = 1; i < myDist.length; i++) {
+      if (myDist[i] < myDist[minIndex])
+        minIndex = i;
+    }
+    //print("my dust ${myDist.length}");
+    //print("docId is ${docID.length}");
+    List<String> docID1 = [];
+    for (int i = 0; i < myDist.length; i++) {
+      if (myDist[i] == myDist[minIndex]) {
+        docID1.add(docID[i]);
+      }
+    }
+    docID.clear();
+    myDist = [];
+    //print("my dist ${myDist.length}");
+    String docIDs = docID1[0];
+    for (int i = 1; i < docID1.length; i++) {
+      docIDs = docIDs + "," + docID1[i];
+    }
+
+    List<String> allDocs = [];
+    List<String> requiredNames = [];
+    List<String> requireLocations = [];
+    List<String> requiredPhone = [];
+    for (int i = 0; i < querySnapshotNew.documents.length; i++) {
+      allDocs.add(querySnapshotNew.documents[i].documentID);
+    }
+    //print(allDocs.length);
+    for (int i = 0; i < docID1.length; i++) {
+      for (int j = 0; j < allDocs.length; j++) {
+        if (docID1[i] == allDocs[j]) {
+          requiredNames.add(querySnapshotNew.documents[j].data['name']);
+          requiredPhone.add(querySnapshotNew.documents[j].data['phone number']);
+          requireLocations.add(querySnapshotNew.documents[j].data['location']);
+        }
+      }
+    }
+    namesConcat = requiredNames[0].trim();
+    for (int i = 1; i < requiredNames.length; i++) {
+      namesConcat = namesConcat + "," + requiredNames[i].trim();
+    }
+    phonesConcat =requiredPhone[0].trim();
+    for (int i = 1; i < requiredNames.length; i++) {
+      phonesConcat = phonesConcat + "," + requiredPhone[i].trim();
+    }
+
+    locationsConcat = requireLocations[0].trim();
+    for(int i = 1;i < requireLocations.length;i++) {
+      locationsConcat = locationsConcat + " " + requireLocations[i].trim();
+    }
+    String finalConcat = namesConcat+";"+locationsConcat+";"+phonesConcat;
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RecommendationScreen(documentIDs: finalConcat,),
+        ));
   }
 
   @override

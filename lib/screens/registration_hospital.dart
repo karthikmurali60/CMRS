@@ -81,14 +81,14 @@ class _RegistrationScreen3State extends State<RegistrationScreen3> {
                     final newUser = await _auth.createUserWithEmailAndPassword(
                         email: email, password: password);
                     if (newUser != null) {
-                      Navigator.pushNamed(context,HospitalDetails.id);
+                      Navigator.popAndPushNamed(context,HospitalDetails.id);
                     }
                     setState(() {
                       showSpinner = false;
                     });
                   } catch (e) {
                     EdgeAlert.show(context, title: 'Invalid Username', description: 'Username Already Exists', gravity: EdgeAlert.BOTTOM);
-                    Navigator.pushNamed(context,  MainRegistration.id);
+                    Navigator.popAndPushNamed(context,  MainRegistration.id);
                   }
                 },
               ),

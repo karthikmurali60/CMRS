@@ -52,7 +52,7 @@ class _UserOptionsState extends State<UserOptions>
   final auth = FirebaseAuth.instance;
   final firestore = Firestore.instance;
   final String _collection = 'hospitals';
-    final _fireStore = Firestore.instance;
+  final _fireStore = Firestore.instance;
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
@@ -190,7 +190,7 @@ class _UserOptionsState extends State<UserOptions>
       locations.add(querySnapshot.documents[i].data['location']);
       docID.add(querySnapshot.documents[i].documentID);
     }
-    print("location length ${locations.length}");
+    //print("location length ${locations.length}");
     int minIndex = 0;
     for (int i = 0; i < locations.length; i++) {
       final double endLatitude = double.parse(locations[i].split(",")[0]);
@@ -205,8 +205,8 @@ class _UserOptionsState extends State<UserOptions>
       if (myDist[i] < myDist[minIndex])
         minIndex = i;
     }
-    print("my dust ${myDist.length}");
-    print("docId is ${docID.length}");
+    //print("my dust ${myDist.length}");
+    //print("docId is ${docID.length}");
     List<String> docID1 = [];
     for (int i = 0; i < myDist.length; i++) {
       if (myDist[i] == myDist[minIndex]) {
@@ -215,7 +215,7 @@ class _UserOptionsState extends State<UserOptions>
     }
     docID.clear();
     myDist = [];
-    print("my dist ${myDist.length}");
+    //print("my dist ${myDist.length}");
     String docIDs = docID1[0];
     for (int i = 1; i < docID1.length; i++) {
       docIDs = docIDs + "," + docID1[i];
