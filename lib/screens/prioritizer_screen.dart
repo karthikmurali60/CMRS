@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'package:flash_chat/screens/recommendation.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import 'package:edge_alert/edge_alert.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:flutter/services.dart';
 
 
 class GoogleMaps {
@@ -88,7 +88,7 @@ class _PrioritisationState extends State<Prioritisation> {
   int phoneNumber ;
   String descr = "";
 
-  void getLocationOfNearestHospital(int n) async {
+  /*void getLocationOfNearestHospital(int n) async {
     try {
       List<String> locations = [];
       List<String> phoneNumbers = [];
@@ -136,7 +136,7 @@ class _PrioritisationState extends State<Prioritisation> {
         EdgeAlert.show(context, title: 'Your location', description: '$position', gravity: EdgeAlert.BOTTOM);
       }
     }
-  }
+  }*/
 
   /*void getNameOfNearestHospital() async {
     List<String> locations = [];
@@ -209,7 +209,7 @@ class _PrioritisationState extends State<Prioritisation> {
   }
    */
 
-  void getNameOfNearestHospital() async {
+  /*void getNameOfNearestHospital() async {
     List<String> docID = [];
     docID.clear();
     List<double> myDist = []; // Stores all distances
@@ -284,6 +284,100 @@ class _PrioritisationState extends State<Prioritisation> {
     for (int i = 1; i < requiredNames.length; i++) {
       namesConcat = namesConcat + "," + requiredNames[i].trim();
     }
+    phonesConcat =requiredPhone[0].trim();
+    for (int i = 1; i < requiredNames.length; i++) {
+      phonesConcat = phonesConcat + "," + requiredPhone[i].trim();
+    }
+
+    locationsConcat = requireLocations[0].trim();
+    for(int i = 1;i < requireLocations.length;i++) {
+      locationsConcat = locationsConcat + " " + requireLocations[i].trim();
+    }
+    String finalConcat = namesConcat+";"+locationsConcat+";"+phonesConcat;
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RecommendationScreen(documentIDs: finalConcat,),
+        ));
+  }*/
+
+  void getNameOfNearestHospital() async {
+    List<String> docID = [];
+    docID.clear();
+    List<double> myDist = []; // Stores all distances
+    myDist.clear();
+    double myDist1;
+    List<String> locations = [];
+
+    position = await Geolocator().getLastKnownPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    myLocation = GeoPoint(position.latitude, position.longitude);
+
+    EdgeAlert.show(context, title: 'Your location',
+        description: '$position',
+        gravity: EdgeAlert.BOTTOM);
+    for (int i = 0; i < querySnapshot.documents.length; i++) {
+      int amb = querySnapshot.documents[i].data['ambulances'];
+      if(amb > 0) {
+        locations.add(querySnapshot.documents[i].data['location']);
+        docID.add(querySnapshot.documents[i].documentID);
+      }
+    }
+
+    for (int i = 0; i < locations.length; i++) {
+      final double endLatitude = double.parse(locations[i].split(",")[0]);
+      final double endLongitude = double.parse(locations[i].split(",")[1]);
+      myDist1 = await Geolocator().distanceBetween(
+          myLocation.latitude, myLocation.longitude, endLatitude,
+          endLongitude);
+      myDist.add(myDist1);
+    }
+
+    final SplayTreeMap<double, List<String>> st = SplayTreeMap<double, List<String>>();
+    for(int i=0;i<myDist.length;i++){
+      if(!(st.containsKey(docID))) {
+        st.putIfAbsent(myDist[i], () => List<String>());
+      }
+    }
+
+    for(int i=0;i<myDist.length;i++) {
+      st[myDist[i]].add(docID[i]);
+    }
+    List<String> top5 = [];
+    st.forEach((key,value) {
+      for (int k = 0; k < value.length; k++) {
+        if (top5.length < 10) {
+          top5.add(value[k]);
+        }
+      }
+    });
+
+    List<String> allDocs = [];
+    List<String> requiredNames = [];
+    List<String> requireLocations = [];
+    List<String> requiredPhone = [];
+    String namesConcat = "";
+    String locationsConcat = "";
+    String phonesConcat = "";
+    for (int i = 0; i < querySnapshotNew.documents.length; i++) {
+      allDocs.add(querySnapshotNew.documents[i].documentID);
+    }
+
+    for (int i = 0; i < top5.length; i++) {
+      for (int j = 0; j < allDocs.length; j++) {
+        if (top5[i] == allDocs[j]) {
+          requiredNames.add(querySnapshotNew.documents[j].data['name']);
+          requiredPhone.add(querySnapshotNew.documents[j].data['phone number']);
+          requireLocations.add(querySnapshotNew.documents[j].data['location']);
+        }
+      }
+    }
+    namesConcat = requiredNames[0].trim();
+    for (int i = 1; i < requiredNames.length; i++) {
+      namesConcat = namesConcat + "," + requiredNames[i].trim();
+    }
+
     phonesConcat =requiredPhone[0].trim();
     for (int i = 1; i < requiredNames.length; i++) {
       phonesConcat = phonesConcat + "," + requiredPhone[i].trim();
@@ -393,17 +487,35 @@ class _PrioritisationState extends State<Prioritisation> {
                           //Choice 2 made by user.
                           if(giveAlert()) {
                             if (storyBrain.storynumber == 9) {
-                              getNameOfNearestHospital();
+                              //getNameOfNearestHospital();
+                              Alert(
+                                context: context,
+                                type: AlertType.error,
+                                title: "Patient in Immediate danger",
+                                desc: "Get CMRS the nearest hospital with ICU bed",
+                                buttons: [
+                                  DialogButton(
+                                    child: Text(
+                                      "Hospitals",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 20),
+                                    ),
+                                    width: 120,
+                                    onPressed: () {
+                                      getNameOfNearestHospital();
+                                      storyBrain.restart();
+                                    },
+                                  )
+                                ],
+                              ).show();
                             }
                           }
-
                           setState(() {
                             storyBrain.nextStory(2);
                           });
                         },
                         color: Colors.redAccent,
                         child: Text(
-
                           storyBrain.getChoice2(),
                           style: TextStyle(
                             fontSize: 20.0,

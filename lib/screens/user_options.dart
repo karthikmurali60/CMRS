@@ -46,9 +46,6 @@ class _UserOptionsState extends State<UserOptions>
   String name ="";
   String names1;
   List<String> namesString = [];
-  String namesConcat = "";
-  String locationsConcat = "";
-  String phonesConcat = "";
   final auth = FirebaseAuth.instance;
   final firestore = Firestore.instance;
   final String _collection = 'hospitals';
@@ -129,6 +126,9 @@ class _UserOptionsState extends State<UserOptions>
     myDist.clear();
     double myDist1;
     List<String> locations = [];
+    String namesConcat = "";
+    String locationsConcat = "";
+    String phonesConcat = "";
 
     position = await Geolocator().getLastKnownPosition(
         desiredAccuracy: LocationAccuracy.high);

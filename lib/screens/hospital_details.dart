@@ -194,6 +194,9 @@ class _HospitalDetailsState extends State<HospitalDetails> {
                 else if(phoneNumber == null){
                   EdgeAlert.show(context, title: "Enter all the details",description: 'Enter Phone Number',gravity: EdgeAlert.BOTTOM);
                 }
+                else if(phoneNumber.length>10 || phoneNumber.length<10){
+                  EdgeAlert.show(context, title: "Enter all the details",description: 'Enter Valid Phone Number',gravity: EdgeAlert.BOTTOM);
+                }
                 else if(bedInt == null){
                   EdgeAlert.show(context, title: "Enter all the details",description: 'Enter Beds',gravity: EdgeAlert.BOTTOM);
                 }

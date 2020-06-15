@@ -227,7 +227,7 @@ class _InputPageState extends State<InputPage> {
                     'location': myLocation
                   });
                   _firestore.collection('user_details');
-                  Navigator.pushNamed(context, Prioritisation.id);
+                  Navigator.popAndPushNamed(context, Prioritisation.id);
                 }
               },
             ),
