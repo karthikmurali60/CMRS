@@ -1,4 +1,4 @@
-
+import 'dart:collection';
 import 'package:flash_chat/screens/inputpage.dart';
 import 'package:flash_chat/screens/login_screen.dart';
 import 'package:flash_chat/screens/recommendation.dart';
@@ -89,7 +89,6 @@ class _UserOptionsState extends State<UserOptions>
       position = await Geolocator().getLastKnownPosition(
           desiredAccuracy: LocationAccuracy.high);
       myLocation = GeoPoint(position.latitude, position.longitude);
-      print(position);
       EdgeAlert.show(context, title: 'Your location', description: '$position', gravity: EdgeAlert.BOTTOM);
       for (int i = 0; i < querySnapshot.documents.length; i++) {
         locations.add(querySnapshot.documents[i].data['location']);
@@ -123,54 +122,6 @@ class _UserOptionsState extends State<UserOptions>
     }
   }
 
-  // ignore: missing_return
-  /*Future<void> splitName() async {
-
-    String s = await getNameOfNearestHospital();
-    print(s);
-
-    /*Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => RecommendationScreen(documentIDs: namesConcat,),
-          ));
-       */
-
-    //if(myDistances<min){
-    //min = myDistances;
-    //minIndex = i;
-    //minDistance[l] = locations[i];
-    //l++;
-
-    /*minDistanceLocation = GeoPoint(double.parse(locations[minIndex].split(",")[0]), double.parse(locations[minIndex].split(",")[1]));
-      String minDistance = minDistanceLocation.latitude.toString()+","+minDistanceLocation.longitude.toString();
-      QuerySnapshot name = await Firestore.instance.collection('hospitals').where('location', isEqualTo: minDistance).getDocuments();
-      descr = name.documents[0].data['name'];
-      //return (name.documents[0].data['name']);*/
-
-    /*Alert(
-        context: context,
-        type: AlertType.success,
-        title: equalDistanceList.length.toString(),
-        buttons: [
-          DialogButton(
-            child: Text(
-              "Hospital Route",
-
-              style: TextStyle(
-                  color: Colors.white, fontSize: 15),
-            ),
-            width: 120,
-            onPressed: () {
-              getLocationOfNearestHospital();
-            },
-          ),
-        ],
-      ).show();*/
-
-  }*/
-
-
     void getNameOfNearestHospital() async {
     List<String> docID = [];
     docID.clear();
@@ -191,7 +142,8 @@ class _UserOptionsState extends State<UserOptions>
       docID.add(querySnapshot.documents[i].documentID);
     }
     //print("location length ${locations.length}");
-    int minIndex = 0;
+    //int minIndex = 0;
+
     for (int i = 0; i < locations.length; i++) {
       final double endLatitude = double.parse(locations[i].split(",")[0]);
       final double endLongitude = double.parse(locations[i].split(",")[1]);
@@ -201,25 +153,24 @@ class _UserOptionsState extends State<UserOptions>
       myDist.add(myDist1);
     }
 
-    for (int i = 1; i < myDist.length; i++) {
-      if (myDist[i] < myDist[minIndex])
-        minIndex = i;
+    final SplayTreeMap<double, List<String>> st = SplayTreeMap<double, List<String>>();
+    for(int i=0;i<myDist.length;i++){
+        if(!(st.containsKey(docID))) {
+          st.putIfAbsent(myDist[i], () => List<String>());
+        }
     }
-    //print("my dust ${myDist.length}");
-    //print("docId is ${docID.length}");
-    List<String> docID1 = [];
-    for (int i = 0; i < myDist.length; i++) {
-      if (myDist[i] == myDist[minIndex]) {
-        docID1.add(docID[i]);
-      }
+
+    for(int i=0;i<myDist.length;i++) {
+      st[myDist[i]].add(docID[i]);
     }
-    docID.clear();
-    myDist = [];
-    //print("my dist ${myDist.length}");
-    String docIDs = docID1[0];
-    for (int i = 1; i < docID1.length; i++) {
-      docIDs = docIDs + "," + docID1[i];
-    }
+    List<String> top5 = [];
+    st.forEach((key,value) {
+          for (int k = 0; k < value.length; k++) {
+            if (top5.length < 10) {
+              top5.add(value[k]);
+            }
+          }
+        });
 
     List<String> allDocs = [];
     List<String> requiredNames = [];
@@ -228,10 +179,10 @@ class _UserOptionsState extends State<UserOptions>
       for (int i = 0; i < querySnapshotNew.documents.length; i++) {
         allDocs.add(querySnapshotNew.documents[i].documentID);
       }
-      //print(allDocs.length);
-      for (int i = 0; i < docID1.length; i++) {
+
+      for (int i = 0; i < top5.length; i++) {
         for (int j = 0; j < allDocs.length; j++) {
-          if (docID1[i] == allDocs[j]) {
+          if (top5[i] == allDocs[j]) {
             requiredNames.add(querySnapshotNew.documents[j].data['name']);
             requiredPhone.add(querySnapshotNew.documents[j].data['phone number']);
             requireLocations.add(querySnapshotNew.documents[j].data['location']);
@@ -242,6 +193,7 @@ class _UserOptionsState extends State<UserOptions>
       for (int i = 1; i < requiredNames.length; i++) {
         namesConcat = namesConcat + "," + requiredNames[i].trim();
       }
+
       phonesConcat =requiredPhone[0].trim();
       for (int i = 1; i < requiredNames.length; i++) {
         phonesConcat = phonesConcat + "," + requiredPhone[i].trim();
@@ -258,7 +210,7 @@ class _UserOptionsState extends State<UserOptions>
         MaterialPageRoute(
           builder: (context) => RecommendationScreen(documentIDs: finalConcat,),
         ));
-  }
+    }
 
 
 

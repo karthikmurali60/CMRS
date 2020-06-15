@@ -28,7 +28,7 @@ class FlashChat extends StatelessWidget {
         DeviceOrientation.portraitDown,
       ]);
     return MaterialApp(
-      initialRoute: WelcomeScreen.id,
+      initialRoute: UserOptions.id,
       routes: {
 
         LoginScreen2.id: (context) =>             LoginScreen2(),

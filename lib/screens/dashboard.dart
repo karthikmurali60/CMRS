@@ -24,10 +24,12 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
 
   int ambulance = 0;
   int beds = 0;
+  String name;
 
   void initialise() async {
     ambulance = int.parse(widget.ambulances.split(",")[0]);
     beds = int.parse(widget.ambulances.split(",")[1]);
+    name = widget.ambulances.split(",")[2];
   }
 
 
@@ -60,7 +62,7 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('CMRS',
+        title: Text(name,
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
         backgroundColor: Colors.teal,

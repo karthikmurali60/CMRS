@@ -53,6 +53,9 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
     p1 = widget.documentIDs.split(";")[2];
     names = n1.split(",");
     locations = l1.split(" ");
+    for(int i = 0;i<locations.length;i++) {
+      print(locations[i]);
+    }
     phones = p1.split(",");
   }
 

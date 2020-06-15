@@ -26,6 +26,10 @@ class _HospitalUIState extends State<HospitalUI> {
   String finalLocation;
   final firestore = Firestore.instance;
   int flag  = 0;
+  final String _collection = 'hospitals';
+  final _fireStore = Firestore.instance;
+  QuerySnapshot querySnapshotNew;
+
 
   final auth = FirebaseAuth.instance;
 
@@ -51,9 +55,10 @@ class _HospitalUIState extends State<HospitalUI> {
     // ignore: non_constant_identifier_names
         .get().then((DocumentSnapshot) =>
     hospitalName = DocumentSnapshot.data['name']);
+
     String ambulances = ambulance;
     String bed = beds;
-    String concat = ambulances+","+bed;
+    String concat = ambulances+","+bed+","+hospitalName;
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -75,24 +80,35 @@ class _HospitalUIState extends State<HospitalUI> {
     beds = DocumentSnapshot.data['beds'].toString());
     print(beds);
     print(ambulance);
-    firestore.collection('hospitals').document(uid)
+    /*firestore.collection('hospitals').document(uid)
     // ignore: non_constant_identifier_names
         .get().then((DocumentSnapshot) =>
-    hospitalName = DocumentSnapshot.data['name']);
+    hospitalName = DocumentSnapshot.data['name']);*/
+
+    if(querySnapshotNew!=null) {
+      for (int i = 0; i < querySnapshotNew.documents.length; i++) {
+        if (querySnapshotNew.documents[i].documentID == uid) {
+          hospitalName = querySnapshotNew.documents[i].data['name'];
+        }
+      }
+    }else{
+      print("ERRR");
+    }
   }
 
-
-  TextEditingController _controller;
+  getData() async {
+    return await _fireStore.collection(_collection).getDocuments();
+  }
 
   void initState() {
     super.initState();
     WidgetsBinding.instance
         .addPostFrameCallback((_) => initialise());
-  }
-
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+    getData().then((val) {
+      setState(() {
+        querySnapshotNew = val;
+      });
+    });
   }
 
   _signOut() async {
@@ -113,11 +129,14 @@ class _HospitalUIState extends State<HospitalUI> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                SizedBox(
+                  height: 150.0,
+                ),
                 Hero(
                   tag: 'logo',
                   child: Container(
                     child: Image.asset('images/playstore.png'),
-                    height: 60.0,
+                    height: 50.0,
                   ),
                 ),
                 Text(
@@ -130,7 +149,7 @@ class _HospitalUIState extends State<HospitalUI> {
               ],
             ),
             SizedBox(
-              height: 48.0,
+              height: 0.0,
             ),
 
             Expanded(
@@ -157,16 +176,7 @@ class _HospitalUIState extends State<HospitalUI> {
                           ),
                           ),
                           SizedBox(
-                            height: 50,
-                          ),
-
-                          Text(hospitalName, style: GoogleFonts.pacifico(
-                            textStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: Colors.black
-                            ),
-                          )
+                            height: 20,
                           ),
                         ],
                       )

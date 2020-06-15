@@ -1,4 +1,4 @@
-import 'package:flash_chat/screens/dashboard.dart';
+import 'package:flash_chat/screens/hospital_UI.dart';
 import 'package:flutter/material.dart';
 import 'package:flash_chat/constants.dart';
 import 'package:geolocator/geolocator.dart';
@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:edge_alert/edge_alert.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flash_chat/components/bottom_button.dart';
-import 'dashboard.dart';
 
 class HospitalDetails extends StatefulWidget {
   static const String id = 'hdetails_screen';
@@ -33,14 +32,15 @@ class _HospitalDetailsState extends State<HospitalDetails> {
 
 
   void sendDataToNextScreen(BuildContext context) {
-    String ambulances = ambulance;
-    String bed = beds;
-    String concat = ambulances+","+bed;
-    Navigator.push(
+    //String ambulances = ambulance;
+    //String bed = beds;
+    //String concat = ambulances+","+bed;
+    /*Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => HospitalDashboard(ambulances: concat,),
-        ));
+        ));*/
+    Navigator.popAndPushNamed(context, HospitalUI.id);
   }
 
 
@@ -188,10 +188,26 @@ class _HospitalDetailsState extends State<HospitalDetails> {
               buttonTitle: 'Register Hospital for CMRS',
               onTap: () {
 
-                inputData();
-                Navigator.pop(context);
-                sendDataToNextScreen(context);
-
+                if(hospitalName==null){
+                  EdgeAlert.show(context, title: "Enter all the details",description: 'Enter Hospital Name',gravity: EdgeAlert.BOTTOM);
+                }
+                else if(phoneNumber == null){
+                  EdgeAlert.show(context, title: "Enter all the details",description: 'Enter Phone Number',gravity: EdgeAlert.BOTTOM);
+                }
+                else if(bedInt == null){
+                  EdgeAlert.show(context, title: "Enter all the details",description: 'Enter Beds',gravity: EdgeAlert.BOTTOM);
+                }
+                else if(ambInt == null){
+                  EdgeAlert.show(context, title: "Enter all the details",description: 'Enter Ambulances',gravity: EdgeAlert.BOTTOM);
+                }
+                else if(finalLocation == null){
+                  EdgeAlert.show(context, title: "Enter all the details",description: 'Select Location',gravity: EdgeAlert.BOTTOM);
+                }
+                else {
+                  inputData();
+                  //Navigator.pop(context);
+                  sendDataToNextScreen(context);
+                }
               },
             ),
           ],
