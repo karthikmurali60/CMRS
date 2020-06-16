@@ -53,9 +53,6 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
     p1 = widget.documentIDs.split(";")[2];
     names = n1.split(",");
     locations = l1.split(" ");
-    for(int i = 0;i<locations.length;i++) {
-      print(locations[i]);
-    }
     phones = p1.split(",");
   }
 
@@ -168,7 +165,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
         backgroundColor: Colors.teal,
         title: Text('Nearest Hospitals'),
       ),
-      body: Wrap(children: _buildButtonsWithNames()),
+      body: ListView(children: _buildButtonsWithNames()),
       backgroundColor: Colors.white,
     );
   }

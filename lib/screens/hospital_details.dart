@@ -187,7 +187,6 @@ class _HospitalDetailsState extends State<HospitalDetails> {
             BottomButton(
               buttonTitle: 'Register Hospital for CMRS',
               onTap: () {
-
                 if(hospitalName==null){
                   EdgeAlert.show(context, title: "Enter all the details",description: 'Enter Hospital Name',gravity: EdgeAlert.BOTTOM);
                 }

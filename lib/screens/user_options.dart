@@ -7,13 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flash_chat/components/rounded_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:flutter/services.dart';
 import 'package:edge_alert/edge_alert.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class GoogleMaps {
-
   GoogleMaps._();
   static Future<void> openMap(double latitude, double longitude) async {
     String googleUrl = 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
@@ -64,6 +62,7 @@ class _UserOptionsState extends State<UserOptions>
   getData() async {
     return await _fireStore.collection(_collection).getDocuments();
   }
+
   @override
   void initState() {
     super.initState();
@@ -80,7 +79,7 @@ class _UserOptionsState extends State<UserOptions>
     });
   }
 
-  void getLocationOfNearestHospital() async {
+  /*void getLocationOfNearestHospital() async {
     try {
       List<String> locations = [];
       position = await Geolocator().getLastKnownPosition(
@@ -117,7 +116,7 @@ class _UserOptionsState extends State<UserOptions>
         EdgeAlert.show(context, title: 'Your location', description: '$position', gravity: EdgeAlert.BOTTOM);
       }
     }
-  }
+  }*/
 
     void getNameOfNearestHospital() async {
     List<String> docID = [];
@@ -129,6 +128,10 @@ class _UserOptionsState extends State<UserOptions>
     String namesConcat = "";
     String locationsConcat = "";
     String phonesConcat = "";
+    List<String> allDocs = [];
+    List<String> requiredNames = [];
+    List<String> requireLocations = [];
+    List<String> requiredPhone = [];
 
     position = await Geolocator().getLastKnownPosition(
         desiredAccuracy: LocationAccuracy.high);
@@ -141,8 +144,6 @@ class _UserOptionsState extends State<UserOptions>
       locations.add(querySnapshot.documents[i].data['location']);
       docID.add(querySnapshot.documents[i].documentID);
     }
-    //print("location length ${locations.length}");
-    //int minIndex = 0;
 
     for (int i = 0; i < locations.length; i++) {
       final double endLatitude = double.parse(locations[i].split(",")[0]);
@@ -166,16 +167,10 @@ class _UserOptionsState extends State<UserOptions>
     List<String> top5 = [];
     st.forEach((key,value) {
           for (int k = 0; k < value.length; k++) {
-            if (top5.length < 10) {
               top5.add(value[k]);
-            }
           }
         });
 
-    List<String> allDocs = [];
-    List<String> requiredNames = [];
-    List<String> requireLocations = [];
-    List<String> requiredPhone = [];
       for (int i = 0; i < querySnapshotNew.documents.length; i++) {
         allDocs.add(querySnapshotNew.documents[i].documentID);
       }
@@ -211,8 +206,6 @@ class _UserOptionsState extends State<UserOptions>
           builder: (context) => RecommendationScreen(documentIDs: finalConcat,),
         ));
     }
-
-
 
     @override
   Widget build(BuildContext context) {

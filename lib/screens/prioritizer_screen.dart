@@ -9,9 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 
-
 class GoogleMaps {
-
   GoogleMaps._();
   static Future<void> openMap(double latitude, double longitude) async {
     String googleUrl = 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
@@ -25,11 +23,8 @@ class GoogleMaps {
 
 StoryBrain storyBrain = StoryBrain();
 
-
 class Prioritisation extends StatefulWidget {
-
   static const String id = 'story_screen';
-
   _PrioritisationState createState() => _PrioritisationState();
 }
 
@@ -80,7 +75,6 @@ class _PrioritisationState extends State<Prioritisation> {
       });
     });
   }
-
 
   QuerySnapshot querySnapshot;
   QuerySnapshot querySnapshotNew;
@@ -317,6 +311,7 @@ class _PrioritisationState extends State<Prioritisation> {
     EdgeAlert.show(context, title: 'Your location',
         description: '$position',
         gravity: EdgeAlert.BOTTOM);
+
     for (int i = 0; i < querySnapshot.documents.length; i++) {
       int amb = querySnapshot.documents[i].data['ambulances'];
       if(amb > 0) {
@@ -340,16 +335,14 @@ class _PrioritisationState extends State<Prioritisation> {
         st.putIfAbsent(myDist[i], () => List<String>());
       }
     }
-
     for(int i=0;i<myDist.length;i++) {
       st[myDist[i]].add(docID[i]);
     }
+
     List<String> top5 = [];
     st.forEach((key,value) {
       for (int k = 0; k < value.length; k++) {
-        if (top5.length < 10) {
           top5.add(value[k]);
-        }
       }
     });
 
@@ -373,6 +366,7 @@ class _PrioritisationState extends State<Prioritisation> {
         }
       }
     }
+
     namesConcat = requiredNames[0].trim();
     for (int i = 1; i < requiredNames.length; i++) {
       namesConcat = namesConcat + "," + requiredNames[i].trim();
@@ -444,7 +438,6 @@ class _PrioritisationState extends State<Prioritisation> {
                                   DialogButton(
                                     child: Text(
                                       "Call",
-
                                       style: TextStyle(
                                           color: Colors.white, fontSize: 20),
                                     ),
@@ -458,7 +451,6 @@ class _PrioritisationState extends State<Prioritisation> {
                                 ],
                               ).show();
                             }
-
                           setState(() {
                             storyBrain.nextStory(1);
                           });

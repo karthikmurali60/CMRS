@@ -34,9 +34,6 @@ const kTextFieldDecoration = InputDecoration(
   ),
 );
 
-
-
-
 const kBottomContainerHeight = 80.0;
 const kActiveCardColour = Colors.teal;
 const kInactiveCardColour = Colors.grey;
